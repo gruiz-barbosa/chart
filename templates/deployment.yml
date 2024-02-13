@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      app: {{ $.Release.Name }}
+  template:
+    metadata:
+      name: {{ $.Release.Name }}
+      labels:
+        app: {{ $.Release.Name }}
+    spec:
+    {{- with .Values.containers }}
+      containers:
+        - name: {{ $.Release.Name }}
+          image: {{ .image }}
+          args:
+            {{- range .args }}
+            - {{ . | quote }}
+            {{- end }}
+          livenessProbe:
+          {{- if eq .livenessProbe.enabled true}}
+            httpGet:
+              path: {{ .livenessProbe.httpGet.path }}
+              port: {{ .livenessProbe.httpGet.port }}
+            {{- end }}
+            initialDelaySeconds: {{ .livenessProbe.httpGet.initialDelaySeconds }}
+            periodSeconds: {{ .livenessProbe.httpGet.periodSeconds }}
+            failureThreshold: {{ .livenessProbe.httpGet.failureThreshold }}
+          readinessProbe:
+          {{- if eq .readinessProbe.enabled true}}
+            httpGet:
+              path: {{ .readinessProbe.httpGet.path }}
+              port: {{ .readinessProbe.httpGet.port }}
+            {{- end }}
+            initialDelaySeconds: {{ .livenessProbe.httpGet.initialDelaySeconds }}
+            periodSeconds: {{ .livenessProbe.httpGet.periodSeconds }}
+            failureThreshold: {{ .livenessProbe.httpGet.failureThreshold }}
+            successThreshold: {{ .livenessProbe.httpGet.successThreshold }}
+          ports:
+          {{- range .ports }}
+          - name: {{ .name }}
+            containerPort: {{ .containerPort }}
+          {{- end }}
+          resources:
+            limits:
+              cpu: {{ .resources.limits.cpu }}
+              memory: {{ .resources.limits.memory }}
+  {{- end }}
+
+
+            
+
+        

@@ -1,0 +1,4 @@
+Obrigado por instalar {{ .Chart.Name }}
+
+Para mais informações sobre a release, execute:
+    $ helm status {{ .Release.Name }}
